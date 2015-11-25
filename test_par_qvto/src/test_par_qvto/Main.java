@@ -1,14 +1,8 @@
 package test_par_qvto;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -22,27 +16,26 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.ocl.xtext.essentialocl.EssentialOCLStandaloneSetup;
 import org.eclipse.m2m.qvt.oml.BasicModelExtent;
 import org.eclipse.m2m.qvt.oml.ExecutionContextImpl;
 import org.eclipse.m2m.qvt.oml.ExecutionDiagnostic;
 import org.eclipse.m2m.qvt.oml.ModelExtent;
 import org.eclipse.m2m.qvt.oml.TransformationExecutor;
 import org.eclipse.m2m.qvt.oml.util.WriterLog;
-import org.eclipse.emf.ecore.resource.URIConverter.WriteableOutputStream;
+import org.eclipse.ocl.pivot.uml.UMLStandaloneSetup;
+import org.eclipse.ocl.xtext.essentialocl.EssentialOCLStandaloneSetup;
+import org.eclipse.uml2.uml.resources.util.UMLResourcesUtil;
 
 import sample.SamplePackage;
 
 public class Main {
 
 	public static void main(String[] args) {
-		final String input = "model/sample.xmi";
-		final String output = "output/sample2.xmi";
-		final String transform = "transforms/test.qvto";
+//		final String input = "model/sample.xmi";
+//		final String transform = "transforms/test.qvto";
 
-		File outputFile = new File(output);
-		outputFile.mkdirs();
+		final String input = "model/my.uml";
+		final String transform = "transforms/test2.qvto";
 
 		ResourceSet rs = new ResourceSetImpl();
 		init(rs);
@@ -60,30 +53,16 @@ public class Main {
 
 			EObject model = resource.getContents().get(0);
 
+			// Uncomment the following line and everything will work 
+			//transformModel(rs, transform, model, 0);
+			
 			IntStream.rangeClosed(0, 10)
 				.boxed()
 				.collect(Collectors.toList())
 				.parallelStream()
 				.forEach(i -> {
-
-					try {
-						List<EObject> result = transformModel(rs, createFileURI(transform), model);
-
-						System.out.println(String.format("(%d) Output objects created: %d", i, result.size()));
-						System.out.println(">>>");
-						for (EObject obj : result) {
-							System.out.println(obj);
-						}
-						System.out.println("<<<");
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
+					transformModel(rs, transform, model, i);
 				});
-
-
-			// saveModel(rs, result.get(0), createFileURI(output));
 
 			System.out.println("Done!");
 		} catch (Exception e) {
@@ -95,8 +74,12 @@ public class Main {
 		System.out.println("Initialization");
 		rs.setURIConverter(new CustomURIConverter());
 
+		System.out.println("  UML");
+        UMLResourcesUtil.init(rs);
+        
 		System.out.println("  OCL");
 		EssentialOCLStandaloneSetup.doSetup();
+		UMLStandaloneSetup.init();
 
 		System.out.println("  Ecore packages");
 		SamplePackage.eINSTANCE.getEFactoryInstance();
@@ -109,6 +92,22 @@ public class Main {
 		return URI.createFileURI(new File(relativePath).getAbsolutePath());
 	}
 
+	private static void transformModel(ResourceSet rs, String transform, EObject model, int i) {
+		try {
+			List<EObject> result = transformModel(rs, createFileURI(transform), model);
+
+			System.out.println(String.format("(%d) Output objects created: %d", i, result.size()));
+			System.out.println(">>>");
+			for (EObject obj : result) {
+				System.out.println(obj);
+			}
+			System.out.println("<<<");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static List<EObject> transformModel(ResourceSet rs, URI transformation, EObject model) throws Exception {
 		TransformationExecutor executor = new TransformationExecutor(transformation);
 		ExecutionContextImpl context = new ExecutionContextImpl();
@@ -128,23 +127,5 @@ public class Main {
 			}
 			throw new Exception(status.getMessage());
 		}
-	}
-
-	private static void saveModel(ResourceSet rs, EObject model, URI fileName) throws IOException {
-		StringWriter writer = new StringWriter();
-		WriteableOutputStream stream = new WriteableOutputStream(writer, "UTF-8");
-		Resource res = rs.createResource(fileName);
-		res.getContents().add(model);
-		Map<Object, Object> options = new HashMap<Object, Object>();
-		options.put(XMLResource.OPTION_ENCODING, "UTF-8");
-		options.put(XMLResource.OPTION_EXTENDED_META_DATA, Boolean.TRUE);
-		res.save(stream, options);
-		res.unload();
-
-		OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(fileName.path()),
-				Charset.forName("UTF-8").newEncoder());
-		osw.write(writer.toString());
-		osw.flush();
-		osw.close();
 	}
 }

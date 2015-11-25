@@ -2,6 +2,8 @@ modeltype SAMPLE 'strict' uses 'http://www.example.org/sample';
 modeltype OCL 'strict' uses 'http://www.eclipse.org/ocl/2015/Pivot';
 modeltype TYPE uses 'http://www.eclipse.org/emf/2003/XMLType';
 
+import test_par_qvto.UtilitiesLibrary;
+
 transformation test(in i : SAMPLE, out o : SAMPLE);
 
 main()
@@ -11,5 +13,5 @@ main()
 
 mapping SAMPLE::Class::toEntity() : SAMPLE::Entity
 {
-	name := 'New' + self.name + 'Entity';
+	name := 'New' + self.name + 'Entity' + getSeqNumber().toString();
 }

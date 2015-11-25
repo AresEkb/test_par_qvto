@@ -9,5 +9,8 @@ Require-Bundle: org.eclipse.emf.common,
  org.eclipse.ocl.xtext.essentialocl,
  org.eclipse.m2m.qvt.oml,
  org.eclipse.equinox.registry,
- org.apache.log4j;bundle-version="1.2.15"
+ org.apache.log4j;bundle-version="1.2.15",
+ org.eclipse.uml2.uml,
+ org.eclipse.uml2.uml.resources,
+ org.eclipse.ocl.pivot.uml
 Import-Package: sample
