@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: test_par_qvto
+Bundle-SymbolicName: test_par_qvto
+Bundle-Version: 1.0.0.qualifier
+Export-Package: test_par_qvto
+Require-Bundle: org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.eclipse.ocl.xtext.essentialocl,
+ org.eclipse.m2m.qvt.oml,
+ org.eclipse.equinox.registry,
+ org.apache.log4j;bundle-version="1.2.15"
+Import-Package: sample
