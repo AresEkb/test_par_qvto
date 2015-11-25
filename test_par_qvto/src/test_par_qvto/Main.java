@@ -54,7 +54,7 @@ public class Main {
 			EObject model = resource.getContents().get(0);
 
 			// Uncomment the following line and everything will work 
-			//transformModel(rs, transform, model, 0);
+			transformModel(rs, transform, model, 0);
 			
 			IntStream.rangeClosed(0, 10)
 				.boxed()

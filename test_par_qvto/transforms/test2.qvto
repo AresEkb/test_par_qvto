@@ -14,7 +14,7 @@ main()
 
 mapping UML::Class::toNewClass() : UML::Class
 {
-	name := 'New' + self.name;
+	name := 'New' + self.name + getSeqNumber().toString();
 	ownedRule := self.ownedRule->toNewConstraint();
 }
 
